@@ -35,6 +35,13 @@ class Tts extends NativeEventEmitter {
     return TextToSpeech.setDucking(enabled);
   }
 
+  setMixingWithOthers(enabled) {
+    if (Platform.OS === 'windows') {
+      return Promise.resolve(true);
+    }
+    return TextToSpeech.setMixingWithOthers(enabled);
+  }
+
   setDefaultEngine(engineName) {
     if (Platform.OS === 'ios' || Platform.OS === 'windows') {
       return Promise.resolve(true);
