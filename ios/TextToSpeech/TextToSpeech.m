@@ -134,6 +134,7 @@ RCT_EXPORT_METHOD(setDucking:(BOOL *)ducking
     _ducking = ducking;
 
     if(ducking) {
+        _mixingWithOthers = false;
         AVAudioSession *session = [AVAudioSession sharedInstance];
         [session setCategory:AVAudioSessionCategoryPlayback
                  withOptions:AVAudioSessionCategoryOptionDuckOthers
@@ -151,6 +152,7 @@ RCT_EXPORT_METHOD(setMixingWithOthers:(BOOL *)mixingWithOthers
     _mixingWithOthers = mixingWithOthers;
 
     if(mixingWithOthers) {
+        _ducking = false;
         AVAudioSession *session = [AVAudioSession sharedInstance];
         [session setCategory:AVAudioSessionCategoryPlayback
                  withOptions:AVAudioSessionCategoryOptionMixWithOthers
