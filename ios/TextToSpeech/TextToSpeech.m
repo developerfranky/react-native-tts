@@ -32,6 +32,7 @@ RCT_EXPORT_MODULE()
         _synthesizer = [AVSpeechSynthesizer new];
         _synthesizer.delegate = self;
         _ducking = false;
+        _mixingWithOthers = false;
         _ignoreSilentSwitch = @"inherit"; // inherit, ignore, obey
     }
 
@@ -143,6 +144,23 @@ RCT_EXPORT_METHOD(setDucking:(BOOL *)ducking
 }
 
 
+RCT_EXPORT_METHOD(setMixingWithOthers:(BOOL *)mixingWithOthers
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject)
+{
+    _mixingWithOthers = mixingWithOthers;
+
+    if(mixingWithOthers) {
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        [session setCategory:AVAudioSessionCategoryPlayback
+                 withOptions:AVAudioSessionCategoryOptionMixWithOthers
+                       error:nil];
+    }
+
+    resolve(@"success");
+}
+
+
 RCT_EXPORT_METHOD(setDefaultLanguage:(NSString *)language
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
@@ -225,7 +243,7 @@ RCT_EXPORT_METHOD(voices:(RCTPromiseResolveBlock)resolve
 
 -(void)speechSynthesizer:(AVSpeechSynthesizer *)synthesizer didStartSpeechUtterance:(AVSpeechUtterance *)utterance
 {
-    if(_ducking) {
+    if(_ducking || _mixingWithOthers) {
         [[AVAudioSession sharedInstance] setActive:YES error:nil];
     }
 
@@ -234,7 +252,7 @@ RCT_EXPORT_METHOD(voices:(RCTPromiseResolveBlock)resolve
 
 -(void)speechSynthesizer:(AVSpeechSynthesizer *)synthesizer didFinishSpeechUtterance:(AVSpeechUtterance *)utterance
 {
-    if(_ducking) {
+    if(_ducking || _mixingWithOthers) {
         [[AVAudioSession sharedInstance] setActive:NO error:nil];
     }
 
@@ -243,7 +261,7 @@ RCT_EXPORT_METHOD(voices:(RCTPromiseResolveBlock)resolve
 
 -(void)speechSynthesizer:(AVSpeechSynthesizer *)synthesizer didPauseSpeechUtterance:(AVSpeechUtterance *)utterance
 {
-    if(_ducking) {
+    if(_ducking || _mixingWithOthers) {
         [[AVAudioSession sharedInstance] setActive:NO error:nil];
     }
 
@@ -252,7 +270,7 @@ RCT_EXPORT_METHOD(voices:(RCTPromiseResolveBlock)resolve
 
 -(void)speechSynthesizer:(AVSpeechSynthesizer *)synthesizer didContinueSpeechUtterance:(AVSpeechUtterance *)utterance
 {
-    if(_ducking) {
+    if(_ducking || _mixingWithOthers) {
         [[AVAudioSession sharedInstance] setActive:YES error:nil];
     }
 
@@ -269,7 +287,7 @@ RCT_EXPORT_METHOD(voices:(RCTPromiseResolveBlock)resolve
 
 -(void)speechSynthesizer:(AVSpeechSynthesizer *)synthesizer didCancelSpeechUtterance:(AVSpeechUtterance *)utterance
 {
-    if(_ducking) {
+    if(_ducking || _mixingWithOthers) {
         [[AVAudioSession sharedInstance] setActive:NO error:nil];
     }
 
