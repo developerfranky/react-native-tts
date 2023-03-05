@@ -28,6 +28,7 @@ public class TextToSpeechModule extends ReactContextBaseJavaModule {
     private ArrayList<Promise> initStatusPromises;
 
     private boolean ducking = false;
+    private boolean mixing = false;
     private AudioManager audioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
 
@@ -257,7 +258,21 @@ public class TextToSpeechModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setDucking(Boolean ducking, Promise promise) {
         if(notReady(promise)) return;
+        if (ducking) {
+            this.mixing = false;
+        }
         this.ducking = ducking;
+        promise.resolve("success");
+    }
+
+
+    @ReactMethod
+    public void setMixingWithOthers(Boolean mixing, Promise promise) {
+        if(notReady(promise)) return;
+        if (mixing) {
+            this.ducking = false;
+        }
+        this.mixing = mixing;
         promise.resolve("success");
     }
 
